@@ -1,0 +1,3 @@
+{
+  "extends": "@fizzy-timer/config/tsconfig.base.json"
+}
