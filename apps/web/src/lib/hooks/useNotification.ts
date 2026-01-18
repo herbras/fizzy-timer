@@ -3,66 +3,86 @@
  * Handles browser notification permissions and displaying notifications
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
-type NotificationPermission = 'default' | 'granted' | 'denied';
+type NotificationPermission = "default" | "granted" | "denied";
 
 export function useNotification() {
-  const [permission, setPermission] = useState<NotificationPermission>('default');
-  const [supported, setSupported] = useState(false);
+	const [permission, setPermission] =
+		useState<NotificationPermission>("default");
+	const [supported, setSupported] = useState(false);
 
-  // Check if notifications are supported
-  useEffect(() => {
-    setSupported('Notification' in window);
-    if ('Notification' in window) {
-      setPermission(Notification.permission);
-    }
-  }, []);
+	// Check if notifications are supported
+	useEffect(() => {
+		setSupported("Notification" in window);
+		if ("Notification" in window) {
+			setPermission(Notification.permission);
+		}
+	}, []);
 
-  // Request notification permission
-  const requestPermission = useCallback(async (): Promise<NotificationPermission> => {
-    if (!('Notification' in window)) {
-      console.warn('[useNotification] Notifications not supported');
-      return 'denied';
-    }
+	// Request notification permission
+	const requestPermission =
+		useCallback(async (): Promise<NotificationPermission> => {
+			if (!("Notification" in window)) {
+				console.warn("[useNotification] Notifications not supported");
+				return "denied";
+			}
 
-    if (Notification.permission === 'granted') {
-      setPermission('granted');
-      return 'granted';
-    }
+			if (Notification.permission === "granted") {
+				setPermission("granted");
+				return "granted";
+			}
 
-    if (Notification.permission !== 'denied') {
-      const result = await Notification.requestPermission();
-      setPermission(result);
-      return result;
-    }
+			if (Notification.permission !== "denied") {
+				const result = await Notification.requestPermission();
+				setPermission(result);
+				return result;
+			}
 
-    return 'denied';
-  }, []);
+			return "denied";
+		}, []);
 
-  // Show notification
-  const showNotification = useCallback(
-    (title: string, options?: NotificationOptions) => {
-      if (!supported || permission !== 'granted') {
-        console.warn('[useNotification] Cannot show notification:', { supported, permission });
-        return null;
-      }
+	// Show notification
+	const showNotification = useCallback(
+		async (title: string, options?: NotificationOptions) => {
+			if (!supported || permission !== "granted") {
+				console.warn("[useNotification] Cannot show notification:", {
+					supported,
+					permission,
+				});
+				return;
+			}
 
-      // Create notification
-      const notification = new Notification(title, {
+      const notificationOptions = {
         icon: '/icons/icon-192.png',
         badge: '/icons/icon-72.png',
         vibrate: [200, 100, 200],
         ...options,
-      });
+      };
 
-      // Auto-close after 5 seconds
-      setTimeout(() => notification.close(), 5000);
+      // Try using service worker first (required for mobile Chrome)
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          await registration.showNotification(title, notificationOptions as any);
+          return;
+        } catch (error) {
+          console.error('[useNotification] Service worker notification failed:', error);
+          // Fallback to regular notification
+        }
+      }
 
-      return notification;
-    },
-    [supported, permission]
-  );
+      // Fallback to regular Notification API (for desktop browsers)
+      try {
+        const notification = new Notification(title, notificationOptions as any);
+        // Auto-close after 5 seconds (only works with regular Notification)
+        setTimeout(() => notification.close(), 5000);
+      } catch (error) {
+        console.error('[useNotification] Notification API failed:', error);
+      }
+		},
+		[supported, permission],
+	);
 
   // Show timer completion notification
   const showTimerCompleteNotification = useCallback(
@@ -72,7 +92,7 @@ export function useNotification() {
         ? `Anda telah fokus selama ${minutes} menit.`
         : 'Sesi fokus selesai.';
 
-      return showNotification('Sesi Fokus Selesai', {
+      return showNotification(`Fokus Selesai: ${cardTitle}`, {
         body: message,
         tag: 'timer-complete',
         requireInteraction: false,
@@ -81,11 +101,11 @@ export function useNotification() {
     [showNotification]
   );
 
-  return {
-    supported,
-    permission,
-    requestPermission,
-    showNotification,
-    showTimerCompleteNotification,
-  };
+	return {
+		supported,
+		permission,
+		requestPermission,
+		showNotification,
+		showTimerCompleteNotification,
+	};
 }

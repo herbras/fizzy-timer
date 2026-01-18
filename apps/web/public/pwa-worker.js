@@ -1,82 +1,109 @@
 // PWA Service Worker for Fizzy Timer
 // Manual service worker since vite-plugin-pwa doesn't work well with TanStack Start SSR
 
-const CACHE_NAME = 'fizzy-timer-v1';
-const STATIC_CACHE = 'fizzy-timer-static-v1';
+const CACHE_NAME = "fizzy-timer-v1";
+const STATIC_CACHE = "fizzy-timer-static-v1";
 
 // Files to cache on install
 const PRECACHE_URLS = [
-  '/',
-  '/manifest.webmanifest',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+	"/",
+	"/manifest.webmanifest",
+	"/icons/icon-192.png",
+	"/icons/icon-512.png",
 ];
 
 // Install event - precache static assets
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_URLS);
-    })
-  );
-  self.skipWaiting();
+self.addEventListener("install", (event) => {
+	event.waitUntil(
+		caches.open(CACHE_NAME).then((cache) => {
+			return cache.addAll(PRECACHE_URLS);
+		}),
+	);
+	// Removed skipWaiting() to prevent forced reloads
+	// New SW will activate when all tabs are closed
 });
 
 // Activate event - cleanup old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME && name !== STATIC_CACHE)
-          .map((name) => caches.delete(name))
-      );
-    })
-  );
-  self.clients.claim();
+self.addEventListener("activate", (event) => {
+	event.waitUntil(
+		caches.keys().then((cacheNames) => {
+			return Promise.all(
+				cacheNames
+					.filter((name) => name !== CACHE_NAME && name !== STATIC_CACHE)
+					.map((name) => caches.delete(name)),
+			);
+		}),
+	);
+	self.clients.claim();
 });
 
 // Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
+self.addEventListener("fetch", (event) => {
+	const { request } = event;
+	const url = new URL(request.url);
 
-  // Skip non-GET requests
-  if (request.method !== 'GET') return;
+	// Skip non-GET requests
+	if (request.method !== "GET") return;
 
-  // Skip API calls and Convex
-  if (url.pathname.startsWith('/api/') ||
-      url.hostname.includes('convex.cloud') ||
-      url.hostname.includes('fizzy.do') ||
-      url.hostname.includes('workers.dev')) {
-    return;
-  }
+	// Skip API calls and Convex
+	if (
+		url.pathname.startsWith("/api/") ||
+		url.hostname.includes("convex.cloud") ||
+		url.hostname.includes("fizzy.do") ||
+		url.hostname.includes("workers.dev")
+	) {
+		return;
+	}
 
-  // Skip HTTP/HTTPS mixed content
-  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+	// Skip HTTP/HTTPS mixed content
+	if (url.protocol !== "http:" && url.protocol !== "https:") return;
 
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
+	event.respondWith(
+		caches.match(request).then((cached) => {
+			if (cached) return cached;
 
-      return fetch(request).then((response) => {
-        // Don't cache non-successful responses
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
+			return fetch(request).then((response) => {
+				// Don't cache non-successful responses
+				if (!response || response.status !== 200 || response.type !== "basic") {
+					return response;
+				}
 
-        // Cache static assets and Giphy images
-        if (url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|ico|woff2)$/) ||
-            url.hostname.includes('giphy.com') ||
-            url.hostname.includes('media.giphy.com')) {
-          const responseToCache = response.clone();
-          caches.open(STATIC_CACHE).then((cache) => {
-            cache.put(request, responseToCache);
-          });
-        }
+				// Cache static assets and Giphy images
+				if (
+					url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|ico|woff2)$/) ||
+					url.hostname.includes("giphy.com") ||
+					url.hostname.includes("media.giphy.com")
+				) {
+					const responseToCache = response.clone();
+					caches.open(STATIC_CACHE).then((cache) => {
+						cache.put(request, responseToCache);
+					});
+				}
 
-        return response;
-      });
-    })
-  );
+				return response;
+			});
+		}),
+	);
+});
+
+// Notification click event - open or focus the app
+self.addEventListener("notificationclick", (event) => {
+	event.notification.close();
+
+	event.waitUntil(
+		clients
+			.matchAll({ type: "window", includeUncontrolled: true })
+			.then((clientList) => {
+				// If a window client is already open, focus it
+				for (const client of clientList) {
+					if (client.url === "/" && "focus" in client) {
+						return client.focus();
+					}
+				}
+				// Otherwise, open a new window
+				if (clients.openWindow) {
+					return clients.openWindow("/");
+				}
+			}),
+	);
 });

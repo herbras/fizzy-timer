@@ -14,6 +14,7 @@ import { Route as ReportRouteImport } from './routes/report'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as FocusRouteImport } from './routes/focus'
+import { Route as DownloadRouteImport } from './routes/download'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SetupRoute = SetupRouteImport.update({
@@ -41,6 +42,11 @@ const FocusRoute = FocusRouteImport.update({
   path: '/focus',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,6 +55,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/download': typeof DownloadRoute
   '/focus': typeof FocusRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/download': typeof DownloadRoute
   '/focus': typeof FocusRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/download': typeof DownloadRoute
   '/focus': typeof FocusRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
@@ -74,14 +83,30 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/focus' | '/history' | '/home' | '/report' | '/setup'
+  fullPaths:
+    | '/'
+    | '/download'
+    | '/focus'
+    | '/history'
+    | '/home'
+    | '/report'
+    | '/setup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/focus' | '/history' | '/home' | '/report' | '/setup'
-  id: '__root__' | '/' | '/focus' | '/history' | '/home' | '/report' | '/setup'
+  to: '/' | '/download' | '/focus' | '/history' | '/home' | '/report' | '/setup'
+  id:
+    | '__root__'
+    | '/'
+    | '/download'
+    | '/focus'
+    | '/history'
+    | '/home'
+    | '/report'
+    | '/setup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DownloadRoute: typeof DownloadRoute
   FocusRoute: typeof FocusRoute
   HistoryRoute: typeof HistoryRoute
   HomeRoute: typeof HomeRoute
@@ -126,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FocusRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -138,6 +170,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DownloadRoute: DownloadRoute,
   FocusRoute: FocusRoute,
   HistoryRoute: HistoryRoute,
   HomeRoute: HomeRoute,

@@ -1,0 +1,12 @@
+[
+	{
+		"relation": ["delegate_permission/common.handle_all_urls"],
+		"target": {
+			"namespace": "android_app",
+			"package_name": "com.sarbeh.timer.twa",
+			"sha256_cert_fingerprints": [
+				"CE:45:CC:DD:C9:30:33:7D:3B:74:EF:DE:5D:F5:20:24:AB:EA:38:A3:BE:A0:CB:8E:E1:7D:FA:A5:73:AE:1A:35"
+			]
+		}
+	}
+]
