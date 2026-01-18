@@ -1,89 +1,70 @@
 # Fizzy Timer
 
-A focus timer PWA companion app for [Fizzy](https://fizzy.do). Track your focus sessions, manage tasks from your boards, and stay productive.
+A focus timer PWA that integrates with [Fizzy](https://fizzy.do) to track work sessions and share worklogs with your team.
+
+## Why Fizzy Timer?
+
+I needed a way to track my focus time while working on tasks from my Fizzy boards. With Fizzy Timer, I can:
+
+- **Start a timer on any task** from my Fizzy boards
+- **Log work sessions** with notes and duration
+- **Share worklogs** with my team automatically
+- **Track team productivity** - see who worked on what and for how long
+
+Perfect for remote teams who want transparency in work tracking without micromanagement.
 
 ## Features
 
-- **Focus Timer** - Full-screen distraction-free timer with countdown/stopwatch modes
-- **Board Integration** - View and select tasks from your Fizzy boards
-- **Session History** - Track all your focus sessions with notes
-- **Weekly Reports** - Visualize your productivity over time
-- **PWA Support** - Install on any device (iOS, Android, Windows, macOS)
-- **Offline First** - Works without internet using IndexedDB
-- **Dark Theme** - Eye-friendly dark mode with gold/amber accents
+- **Focus Timer** - Countdown or stopwatch mode for deep work sessions
+- **Fizzy Integration** - Pull tasks directly from your Fizzy boards
+- **Worklog Sync** - Sessions automatically sync to Fizzy for team visibility
+- **Session History** - Review past sessions with notes and duration
+- **Weekly Reports** - Visualize your productivity trends
+- **Multi-user Support** - Switch between team members on shared devices
+- **PWA** - Install on iOS, Android, Windows, or macOS
+- **Offline First** - Works without internet, syncs when back online
+- **Dark Theme** - Easy on the eyes with gold/amber accents
+
+## How It Works
+
+1. **Connect to Fizzy** - Login with your Fizzy account
+2. **Select a task** - Choose from your boards or create a quick task
+3. **Start the timer** - Focus on your work
+4. **Stop & log** - Add notes and save your session
+5. **Team sees it** - Worklog appears in Fizzy for your team
 
 ## Tech Stack
 
-- **React** + **TanStack Router** - Frontend framework
-- **Vite** + **vite-plugin-pwa** - Build tooling & PWA
-- **TailwindCSS** + **shadcn/ui** - Styling & components
-- **Convex** - Backend & real-time sync
-- **Dexie** - IndexedDB wrapper for offline storage
-- **Turborepo** - Monorepo management
+- **React** + **TanStack Router**
+- **Vite** + **vite-plugin-pwa**
+- **TailwindCSS** + **shadcn/ui**
+- **Dexie (IndexedDB)** - Offline storage
+- **Fizzy API** - Worklog sync
 
 ## Getting Started
-
-### Prerequisites
-
-- [Bun](https://bun.sh) v1.3+
-- [Convex](https://convex.dev) account
-
-### Installation
 
 ```bash
 # Install dependencies
 bun install
 
-# Setup Convex backend
-bun run dev:setup
-
 # Start development server
 bun run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser.
-
-## Project Structure
-
-```
-fizzy-timer/
-├── apps/
-│   └── web/              # PWA frontend
-│       ├── src/
-│       │   ├── components/   # React components
-│       │   ├── lib/          # Hooks, utils, services
-│       │   └── routes/       # TanStack Router pages
-│       └── public/           # Static assets & PWA icons
-├── packages/
-│   ├── backend/          # Convex functions & schema
-│   ├── config/           # Shared TypeScript config
-│   ├── env/              # Environment variables
-│   └── infra/            # Cloudflare deployment (Alchemy)
-└── docs/                 # API documentation
-```
+Open [http://localhost:3001](http://localhost:3001)
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
-| `bun run dev` | Start all apps in development |
-| `bun run dev:web` | Start web app only |
-| `bun run build` | Build all apps |
-| `bun run check` | Run Biome linting & formatting |
-| `bun run check-types` | TypeScript type checking |
+| `bun run dev` | Start development server |
+| `bun run build` | Build for production |
+| `bun run check` | Lint & format with Biome |
 | `bun run deploy` | Deploy to Cloudflare |
 
-## Deployment
+## API Integration
 
-Deploy to Cloudflare Pages via Alchemy:
-
-```bash
-bun run deploy
-```
-
-## API
-
-See [docs/api.md](./docs/api.md) for Fizzy API integration details.
+See [docs/api.md](./docs/api.md) for Fizzy API details.
 
 ## License
 
