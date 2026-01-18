@@ -48,3 +48,19 @@ coverage
 .cache
 tmp
 temp
+
+# Claude Code
+.claude
+claude_code_*.sh
+
+# Wrangler
+.wrangler
+
+# Tanstack
+.tanstack
+
+# Build artifacts
+dev-dist
+
+# APK files
+*.apk
